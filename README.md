@@ -3,1094 +3,930 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>COVID-19 Analytics Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<title>COVID-19 Analytics Dashboard — README</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #03050a;
-    --surface: #080d16;
-    --card: #0d1520;
-    --border: #1a2535;
-    --accent: #00e5ff;
-    --accent2: #ff4b6e;
-    --accent3: #39ff6e;
-    --accent4: #ffb800;
-    --text: #e8edf5;
-    --muted: #5a6a80;
-    --confirmed: #00e5ff;
-    --deaths: #ff4b6e;
-    --recovered: #39ff6e;
-    --active: #ffb800;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Syne', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
+    background: #ffffff;
+    color: #1f2328;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
   }
 
-  /* Animated grid background */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .container {
-    position: relative;
-    z-index: 1;
-    max-width: 1400px;
+  /* GitHub-style page shell */
+  .page {
+    max-width: 860px;
     margin: 0 auto;
-    padding: 40px 24px;
+    padding: 32px 24px 80px;
   }
 
-  /* HEADER */
-  header {
-    margin-bottom: 48px;
-    animation: fadeDown 0.8s ease both;
+  /* ── HEADING STYLES ── */
+  h1 { font-size: 2em; font-weight: 600; border-bottom: 1px solid #d1d9e0; padding-bottom: 10px; margin: 24px 0 16px; line-height: 1.25; }
+  h2 { font-size: 1.5em; font-weight: 600; border-bottom: 1px solid #d1d9e0; padding-bottom: 8px; margin: 32px 0 16px; line-height: 1.25; }
+  h3 { font-size: 1.25em; font-weight: 600; margin: 24px 0 12px; }
+
+  p { margin-bottom: 16px; color: #1f2328; }
+
+  /* blockquote */
+  blockquote {
+    border-left: 4px solid #d1d9e0;
+    padding: 0 16px;
+    color: #656d76;
+    margin: 0 0 20px;
   }
 
-  .header-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    color: var(--accent);
-    border: 1px solid rgba(0,229,255,0.3);
-    padding: 4px 12px;
-    border-radius: 2px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
+  blockquote p { margin: 0; color: #656d76; }
+
+  /* ── LISTS ── */
+  ul, ol { padding-left: 24px; margin-bottom: 16px; }
+  li { margin-bottom: 4px; color: #1f2328; }
+  li strong { color: #1f2328; }
+
+  /* ── INLINE CODE ── */
+  code {
+    background: #f6f8fa;
+    border: 1px solid #d1d9e0;
+    border-radius: 6px;
+    padding: 2px 6px;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 85%;
+    color: #1f2328;
+  }
+
+  /* ── CODE BLOCKS ── */
+  pre {
+    background: #f6f8fa;
+    border: 1px solid #d1d9e0;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
     margin-bottom: 16px;
   }
 
-  .header-badge::before {
-    content: '';
-    width: 6px; height: 6px;
-    background: var(--accent);
-    border-radius: 50%;
-    animation: pulse 2s infinite;
+  pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 87.5%;
+    color: #1f2328;
+    line-height: 1.7;
   }
 
-  header h1 {
-    font-size: clamp(2rem, 5vw, 3.8rem);
-    font-weight: 800;
-    line-height: 1;
-    letter-spacing: -2px;
+  /* ── TABLES ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    font-size: 14px;
   }
 
-  header h1 span { color: var(--accent); }
-
-  header p {
-    margin-top: 12px;
-    color: var(--muted);
-    font-size: 15px;
-    font-family: 'Space Mono', monospace;
-    letter-spacing: 0.5px;
+  th {
+    background: #f6f8fa;
+    border: 1px solid #d1d9e0;
+    padding: 8px 16px;
+    text-align: left;
+    font-weight: 600;
+    color: #1f2328;
   }
 
-  /* KPI CARDS */
-  .kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    margin-bottom: 40px;
-    animation: fadeUp 0.8s 0.2s ease both;
+  td {
+    border: 1px solid #d1d9e0;
+    padding: 8px 16px;
+    color: #1f2328;
+    vertical-align: top;
   }
 
-  .kpi-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    padding: 24px;
-    position: relative;
-    overflow: hidden;
-    transition: transform 0.2s, border-color 0.2s;
-  }
+  tr:nth-child(even) td { background: #f6f8fa; }
 
-  .kpi-card:hover {
-    transform: translateY(-3px);
-    border-color: var(--accent-color);
-  }
+  /* ── BADGES ── */
+  .badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
 
-  .kpi-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-    background: var(--accent-color);
-  }
-
-  .kpi-card::after {
-    content: '';
-    position: absolute;
-    bottom: -40px; right: -40px;
-    width: 100px; height: 100px;
-    border-radius: 50%;
-    background: var(--accent-color);
-    opacity: 0.05;
-  }
-
-  .kpi-label {
-    font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    color: var(--muted);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-bottom: 10px;
-  }
-
-  .kpi-value {
-    font-size: 2.2rem;
-    font-weight: 800;
-    letter-spacing: -1px;
-    color: var(--accent-color);
-    counter-reset: num;
-    line-height: 1;
-  }
-
-  .kpi-sub {
-    margin-top: 8px;
-    font-size: 12px;
-    color: var(--muted);
-    font-family: 'Space Mono', monospace;
-  }
-
-  /* SECTION HEADERS */
-  .section-header {
-    display: flex;
+  .badge {
+    display: inline-flex;
     align-items: center;
-    gap: 12px;
+    height: 20px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 0 8px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  /* ── INSIGHT CALLOUT BOXES ── */
+  .callout {
+    background: #f6f8fa;
+    border: 1px solid #d1d9e0;
+    border-left: 4px solid #0969da;
+    border-radius: 0 6px 6px 0;
+    padding: 12px 16px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .callout.red   { border-left-color: #cf222e; }
+  .callout.green { border-left-color: #1a7f37; }
+  .callout.amber { border-left-color: #9a6700; }
+  .callout.purple{ border-left-color: #8250df; }
+
+  .callout-icon { font-size: 16px; line-height: 1.5; flex-shrink: 0; }
+  .callout-text { color: #1f2328; line-height: 1.55; }
+  .callout-text strong { font-weight: 600; }
+
+  /* ── CHART CONTAINERS (github image-style) ── */
+  .chart-block {
+    border: 1px solid #d1d9e0;
+    border-radius: 6px;
+    overflow: hidden;
     margin-bottom: 20px;
-    margin-top: 40px;
   }
 
-  .section-header h2 {
-    font-size: 1.1rem;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
+  .chart-caption {
+    background: #f6f8fa;
+    border-top: 1px solid #d1d9e0;
+    padding: 8px 14px;
+    font-size: 13px;
+    color: #656d76;
+    font-style: italic;
   }
 
-  .section-line {
-    flex: 1;
-    height: 1px;
-    background: linear-gradient(90deg, var(--border), transparent);
+  .chart-inner {
+    padding: 20px 20px 12px;
+    background: #ffffff;
   }
 
-  /* CHARTS GRID */
-  .chart-grid-2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    margin-bottom: 20px;
-    animation: fadeUp 0.8s 0.4s ease both;
-  }
-
-  .chart-grid-3 {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 20px;
-    margin-bottom: 20px;
-    animation: fadeUp 0.8s 0.5s ease both;
-  }
-
-  .chart-full {
-    margin-bottom: 20px;
-    animation: fadeUp 0.8s 0.6s ease both;
-  }
-
-  .chart-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    padding: 24px;
-    position: relative;
-  }
-
-  .chart-title {
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 20px;
+  .chart-title-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1f2328;
+    margin-bottom: 14px;
     display: flex;
     align-items: center;
     gap: 8px;
   }
 
-  .chart-title-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--accent);
+  /* bar chart */
+  .bar-list { display: flex; flex-direction: column; gap: 7px; }
+
+  .bar-row { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+
+  .bar-rank {
+    width: 18px; text-align: center;
+    font-size: 11px; color: #656d76;
     flex-shrink: 0;
   }
 
-  /* BAR CHART */
-  .bar-chart { display: flex; flex-direction: column; gap: 10px; }
-
-  .bar-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 12px;
-  }
-
-  .bar-label {
-    width: 100px;
-    text-align: right;
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    color: var(--text);
+  .bar-lbl {
+    width: 88px; text-align: right;
+    font-size: 12px; color: #1f2328;
     flex-shrink: 0;
+    font-family: 'SFMono-Regular', Consolas, monospace;
   }
 
   .bar-track {
-    flex: 1;
-    height: 24px;
-    background: rgba(255,255,255,0.04);
-    border-radius: 2px;
+    flex: 1; height: 20px;
+    background: #f6f8fa;
+    border: 1px solid #d1d9e0;
+    border-radius: 3px;
     overflow: hidden;
     position: relative;
   }
 
   .bar-fill {
-    height: 100%;
+    height: 100%; width: 0;
     border-radius: 2px;
-    transition: width 1.5s cubic-bezier(0.16,1,0.3,1);
-    width: 0;
+    transition: width 1.4s cubic-bezier(0.16,1,0.3,1);
     position: relative;
   }
 
   .bar-fill::after {
-    content: attr(data-val);
-    position: absolute;
-    right: 8px;
-    top: 50%;
+    content: attr(data-v);
+    position: absolute; right: 6px; top: 50%;
     transform: translateY(-50%);
-    font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    color: rgba(0,0,0,0.8);
-    font-weight: 700;
+    font-size: 10px; font-weight: 600;
+    color: #ffffff;
+    font-family: 'SFMono-Regular', Consolas, monospace;
     white-space: nowrap;
   }
 
-  .bar-rank {
-    width: 20px;
-    font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    color: var(--muted);
+  /* trend svg */
+  .trend-svg { width: 100%; display: block; }
+
+  /* donut */
+  .donut-wrap { display: flex; align-items: center; gap: 24px; }
+  .donut-legend { flex: 1; display: flex; flex-direction: column; gap: 7px; }
+  .leg-row { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+  .leg-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .leg-name { flex: 1; color: #1f2328; }
+  .leg-pct { font-family: 'SFMono-Regular', Consolas, monospace; font-size: 12px; color: #656d76; }
+
+  /* stacked */
+  .stk-list { display: flex; flex-direction: column; gap: 7px; }
+  .stk-row { display: flex; align-items: center; gap: 10px; }
+  .stk-lbl { width: 75px; text-align: right; font-size: 12px; color: #1f2328; flex-shrink: 0; font-family: 'SFMono-Regular', Consolas, monospace; }
+  .stk-track { flex: 1; height: 18px; display: flex; border-radius: 3px; overflow: hidden; border: 1px solid #d1d9e0; }
+  .stk-seg { height: 100%; width: 0; transition: width 1.4s cubic-bezier(0.16,1,0.3,1); }
+
+  /* growth */
+  .grw-list { display: flex; flex-direction: column; gap: 7px; }
+  .grw-row { display: flex; align-items: center; gap: 10px; }
+  .grw-lbl { width: 140px; font-size: 12px; color: #1f2328; flex-shrink: 0; font-family: 'SFMono-Regular', Consolas, monospace; }
+  .grw-track { flex: 1; height: 20px; background: #f6f8fa; border: 1px solid #d1d9e0; border-radius: 3px; overflow: hidden; position: relative; }
+  .grw-fill { height: 100%; width: 0; background: #cf222e; transition: width 1.4s cubic-bezier(0.16,1,0.3,1); position: relative; }
+  .grw-fill::after { content: attr(data-v); position: absolute; right: 6px; top: 50%; transform: translateY(-50%); font-size: 10px; font-weight: 600; color: #fff; font-family: 'SFMono-Regular', Consolas, monospace; }
+
+  /* region bars */
+  .rgn-list { display: flex; flex-direction: column; gap: 10px; }
+  .rgn-row { display: flex; align-items: center; gap: 10px; }
+  .rgn-lbl { width: 100px; font-size: 12px; color: #1f2328; flex-shrink: 0; font-family: 'SFMono-Regular', Consolas, monospace; }
+  .rgn-bars { flex: 1; display: flex; flex-direction: column; gap: 3px; }
+  .rgn-bar { height: 7px; border-radius: 2px; width: 0; transition: width 1.4s cubic-bezier(0.16,1,0.3,1); }
+  .rgn-val { width: 50px; text-align: right; font-size: 11px; color: #656d76; flex-shrink: 0; font-family: 'SFMono-Regular', Consolas, monospace; }
+
+  /* heatmap table inside chart */
+  .heat-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .heat-tbl th { background: #f6f8fa; border: 1px solid #d1d9e0; padding: 7px 12px; text-align: right; font-weight: 600; font-size: 12px; color: #1f2328; }
+  .heat-tbl th:first-child { text-align: left; }
+  .heat-tbl td { border: 1px solid #d1d9e0; padding: 6px 12px; text-align: right; }
+  .heat-tbl td:first-child { text-align: left; font-family: 'SFMono-Regular', Consolas, monospace; font-size: 12px; font-weight: 600; }
+  .heat-tbl tr:nth-child(even) td { background: #f6f8fa; }
+  .heat-cell { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 11px; font-weight: 600; font-family: 'SFMono-Regular', Consolas, monospace; }
+
+  /* 2-col chart grid */
+  .chart-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 4px; }
+
+  /* legend row */
+  .mini-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 12px; padding-top: 10px; border-top: 1px solid #d1d9e0; }
+  .mini-leg-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #656d76; }
+  .mini-leg-sq { width: 10px; height: 7px; border-radius: 2px; flex-shrink: 0; }
+
+  /* dashboard platform rows */
+  .platform-row {
+    display: flex; align-items: center; gap: 12px;
+    border: 1px solid #d1d9e0; border-radius: 6px;
+    padding: 14px 16px; margin-bottom: 10px;
+    background: #ffffff;
+    transition: background 0.15s;
+  }
+  .platform-row:hover { background: #f6f8fa; }
+  .platform-icon { font-size: 22px; flex-shrink: 0; }
+  .platform-info { flex: 1; }
+  .platform-name { font-weight: 600; font-size: 14px; color: #1f2328; }
+  .platform-desc { font-size: 12px; color: #656d76; margin-top: 2px; }
+  .platform-tags { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
+  .platform-tag { font-size: 11px; background: #f6f8fa; border: 1px solid #d1d9e0; border-radius: 12px; padding: 1px 8px; color: #1f2328; font-family: 'SFMono-Regular', Consolas, monospace; }
+  .platform-status { font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; animation: blink 1.8s infinite; }
+
+  /* tech stack items */
+  .tech-row { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f3f4f6; }
+  .tech-row:last-child { border-bottom: none; }
+  .tech-icon-box { font-size: 20px; flex-shrink: 0; width: 32px; text-align: center; }
+  .tech-body { flex: 1; }
+  .tech-name { font-weight: 600; font-size: 14px; color: #1f2328; }
+  .tech-desc { font-size: 13px; color: #656d76; }
+  .tech-badges { display: flex; gap: 5px; margin-top: 4px; flex-wrap: wrap; }
+
+  /* file tree */
+  .filetree {
+    background: #f6f8fa; border: 1px solid #d1d9e0; border-radius: 6px;
+    padding: 16px 20px; font-family: 'SFMono-Regular', Consolas, monospace;
+    font-size: 13px; line-height: 2;
+  }
+
+  .ft-root { font-weight: 700; color: #1f2328; margin-bottom: 2px; }
+  .ft-item { display: flex; align-items: center; gap: 6px; color: #1f2328; }
+  .ft-item:hover { color: #0969da; cursor: default; }
+  .ft-conn { color: #656d76; flex-shrink: 0; }
+  .ft-ico { flex-shrink: 0; }
+  .ft-name { flex: 1; }
+  .ft-name.nb { color: #0969da; }
+  .ft-name.img { color: #656d76; }
+  .ft-name.md { color: #1a7f37; font-weight: 600; }
+  .ft-desc { font-size: 11px; color: #656d76; white-space: nowrap; }
+
+  /* KPI summary row */
+  .kpi-summary {
+    display: grid; grid-template-columns: repeat(4,1fr); gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .kpi-box {
+    border: 1px solid #d1d9e0; border-radius: 6px;
+    padding: 14px 16px; background: #ffffff;
     text-align: center;
-    flex-shrink: 0;
   }
 
-  /* TREND CHART */
-  .trend-svg { width: 100%; overflow: visible; }
-
-  /* PIE / DONUT */
-  .donut-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 24px;
+  .kpi-num {
+    font-size: 1.6rem; font-weight: 700; color: #1f2328;
+    line-height: 1; margin-bottom: 4px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
 
-  .donut-svg { flex-shrink: 0; }
+  .kpi-lbl { font-size: 12px; color: #656d76; }
 
-  .donut-legend { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+  /* separator */
+  hr { border: none; border-top: 1px solid #d1d9e0; margin: 28px 0; }
 
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 12px;
-  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
 
-  .legend-dot {
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  .legend-name { color: var(--text); font-size: 12px; }
-
-  .legend-pct {
-    margin-left: auto;
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    color: var(--accent);
-  }
-
-  /* HEATMAP */
-  .heatmap-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-  }
-
-  .heatmap-table th {
-    padding: 8px 12px;
-    text-align: right;
-    color: var(--muted);
-    font-size: 10px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .heatmap-table th:first-child { text-align: left; }
-
-  .heatmap-table td {
-    padding: 8px 12px;
-    text-align: right;
-    border-bottom: 1px solid rgba(255,255,255,0.03);
-    transition: background 0.2s;
-  }
-
-  .heatmap-table td:first-child { text-align: left; font-size: 12px; }
-
-  .heatmap-table tr:hover td { background: rgba(255,255,255,0.03); }
-
-  .heat-cell {
-    display: inline-block;
-    padding: 3px 8px;
-    border-radius: 2px;
-    font-weight: 700;
-    min-width: 70px;
-    text-align: right;
-  }
-
-  /* STACKED BAR */
-  .stacked-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 8px;
-    font-size: 12px;
-  }
-
-  .stacked-label {
-    width: 80px;
-    font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    color: var(--text);
-    flex-shrink: 0;
-    text-align: right;
-  }
-
-  .stacked-track {
-    flex: 1;
-    height: 20px;
-    display: flex;
-    border-radius: 2px;
-    overflow: hidden;
-  }
-
-  .stacked-seg {
-    height: 100%;
-    transition: width 1.5s cubic-bezier(0.16,1,0.3,1);
-    width: 0;
-  }
-
-  /* GROWTH CHART */
-  .growth-bar-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
-  }
-
-  .growth-label {
-    width: 130px;
-    font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    color: var(--text);
-    flex-shrink: 0;
-  }
-
-  .growth-track {
-    flex: 1;
-    height: 22px;
-    background: rgba(255,255,255,0.04);
-    border-radius: 2px;
-    overflow: hidden;
-    position: relative;
-  }
-
-  .growth-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #ff4b6e, #ff8c42);
-    border-radius: 2px;
-    width: 0;
-    transition: width 1.5s cubic-bezier(0.16,1,0.3,1);
-    position: relative;
-  }
-
-  .growth-fill::after {
-    content: attr(data-val);
-    position: absolute;
-    right: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    color: rgba(255,255,255,0.9);
-    font-weight: 700;
-  }
-
-  /* REGION BARS */
-  .region-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 14px;
-  }
-
-  .region-label {
-    width: 140px;
-    font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    color: var(--text);
-    flex-shrink: 0;
-  }
-
-  .region-bars { flex: 1; display: flex; flex-direction: column; gap: 3px; }
-
-  .region-mini-bar {
-    height: 8px;
-    border-radius: 1px;
-    width: 0;
-    transition: width 1.5s cubic-bezier(0.16,1,0.3,1);
-  }
-
-  .region-vals {
-    font-family: 'Space Mono', monospace;
-    font-size: 9px;
-    color: var(--muted);
-    width: 80px;
-    text-align: right;
-    flex-shrink: 0;
-  }
-
-  /* TOOLTIP */
-  .tooltip {
-    position: fixed;
-    background: rgba(8,13,22,0.97);
-    border: 1px solid var(--border);
-    padding: 10px 14px;
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    pointer-events: none;
-    z-index: 1000;
-    display: none;
-    max-width: 200px;
-  }
-
-  /* ANIMATIONS */
-  @keyframes fadeDown {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
-  }
-
-  @keyframes drawLine {
-    from { stroke-dashoffset: 2000; }
-    to { stroke-dashoffset: 0; }
-  }
-
-  .trend-line {
-    stroke-dasharray: 2000;
-    stroke-dashoffset: 2000;
-    animation: drawLine 2s ease forwards;
-  }
-
-  /* FOOTER */
-  footer {
-    margin-top: 60px;
-    padding-top: 24px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    color: var(--muted);
-    animation: fadeUp 0.8s 0.8s ease both;
-  }
-
-  @media (max-width: 900px) {
-    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  @media(max-width:640px) {
     .chart-grid-2 { grid-template-columns: 1fr; }
-    .chart-grid-3 { grid-template-columns: 1fr; }
+    .kpi-summary { grid-template-columns: repeat(2,1fr); }
   }
 </style>
 </head>
 <body>
+<div class="page">
 
-<div class="container">
+<!-- TITLE -->
+<h1>🦠 COVID-19 Global Analytics Dashboard</h1>
 
-  <!-- HEADER -->
-  <header>
-    <div class="header-badge">🦠 Live Analytics · Apr–Jul 2020</div>
-    <h1>COVID-19 <span>Analytics</span><br>Dashboard</h1>
-    <p>WHO Global Dataset · 16.48M Cases · 195 Countries</p>
-  </header>
+<blockquote>
+  <p>Analyzing WHO global COVID-19 data covering Apr–Jul 2020 using Python, SQL, Power BI, Tableau, and Looker Studio to uncover case growth trends, regional distributions, recovery rates, and CFR outliers across 195 countries.</p>
+</blockquote>
 
-  <!-- KPI CARDS -->
-  <div class="kpi-grid">
-    <div class="kpi-card" style="--accent-color: var(--confirmed);">
-      <div class="kpi-label">Confirmed Cases</div>
-      <div class="kpi-value" style="color:var(--confirmed);" data-target="16.48">0</div>
-      <div class="kpi-sub">Million worldwide</div>
-    </div>
-    <div class="kpi-card" style="--accent-color: var(--deaths);">
-      <div class="kpi-label">Total Deaths</div>
-      <div class="kpi-value" style="color:var(--deaths);" data-target="654">0</div>
-      <div class="kpi-sub">Thousand fatalities</div>
-    </div>
-    <div class="kpi-card" style="--accent-color: var(--recovered);">
-      <div class="kpi-label">Recovered</div>
-      <div class="kpi-value" style="color:var(--recovered);" data-target="9.47">0</div>
-      <div class="kpi-sub">Million recovered</div>
-    </div>
-    <div class="kpi-card" style="--accent-color: var(--active);">
-      <div class="kpi-label">Active Cases</div>
-      <div class="kpi-value" style="color:var(--active);" data-target="6.36">0</div>
-      <div class="kpi-sub">Million active (38.6%)</div>
-    </div>
+<div class="badges">
+  <img class="badge" src="https://img.shields.io/badge/Python-3.10-3572A5?style=flat-square&logo=python&logoColor=white" alt="">
+  <img class="badge" src="https://img.shields.io/badge/Jupyter-Notebook-F37626?style=flat-square&logo=jupyter&logoColor=white" alt="">
+  <img class="badge" src="https://img.shields.io/badge/Pandas-Data_Analysis-150458?style=flat-square&logo=pandas&logoColor=white" alt="">
+  <img class="badge" src="https://img.shields.io/badge/Power_BI-Dashboard-F2C811?style=flat-square&logo=powerbi&logoColor=black" alt="">
+  <img class="badge" src="https://img.shields.io/badge/Tableau-Public-E97627?style=flat-square&logo=tableau&logoColor=white" alt="">
+  <img class="badge" src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="">
+</div>
+
+<hr>
+
+<!-- KPI SUMMARY -->
+<h2>📌 Global Summary</h2>
+
+<div class="kpi-summary">
+  <div class="kpi-box">
+    <div class="kpi-num" data-target="16.48" data-dec="2"><span class="kc">0</span>M</div>
+    <div class="kpi-lbl">Confirmed Cases</div>
   </div>
-
-  <!-- TOP 10 COUNTRIES + RECOVERY RATE -->
-  <div class="section-header">
-    <h2>Country Analysis</h2>
-    <div class="section-line"></div>
+  <div class="kpi-box">
+    <div class="kpi-num" data-target="654" data-dec="0"><span class="kc">0</span>K</div>
+    <div class="kpi-lbl">Deaths</div>
   </div>
+  <div class="kpi-box">
+    <div class="kpi-num" data-target="9.47" data-dec="2"><span class="kc">0</span>M</div>
+    <div class="kpi-lbl">Recovered</div>
+  </div>
+  <div class="kpi-box">
+    <div class="kpi-num" data-target="6.36" data-dec="2"><span class="kc">0</span>M</div>
+    <div class="kpi-lbl">Active Cases</div>
+  </div>
+</div>
 
-  <div class="chart-grid-2">
-    <!-- Top 10 Countries -->
-    <div class="chart-card">
-      <div class="chart-title">
-        <div class="chart-title-dot" style="background:var(--confirmed)"></div>
-        Top 10 Countries — Confirmed Cases
+<hr>
+
+<!-- LIVE DASHBOARDS -->
+<h2>📊 Live Dashboards</h2>
+
+<div id="platforms">
+  <div class="platform-row">
+    <div class="platform-icon">📊</div>
+    <div class="platform-info">
+      <div class="platform-name">Power BI</div>
+      <div class="platform-desc">Multi-page interactive dashboard with slicers, drill-through, and R visuals</div>
+      <div class="platform-tags">
+        <span class="platform-tag">DAX</span>
+        <span class="platform-tag">DirectQuery</span>
+        <span class="platform-tag">R Visuals</span>
+        <span class="platform-tag">3 Pages</span>
       </div>
-      <div class="bar-chart" id="top10-chart"></div>
     </div>
+    <div class="platform-status" style="color:#9a6700">
+      <div class="status-dot" style="background:#9a6700"></div>
+      <a href="https://app.powerbi.com" target="_blank" style="color:#0969da;text-decoration:none;font-size:13px">covid_dashboard.pbix ↗</a>
+    </div>
+  </div>
 
-    <!-- Recovery Rate -->
-    <div class="chart-card">
-      <div class="chart-title">
-        <div class="chart-title-dot" style="background:var(--recovered)"></div>
-        Recovery Rate by Country (%)
+  <div class="platform-row">
+    <div class="platform-icon">🔭</div>
+    <div class="platform-info">
+      <div class="platform-name">Looker Studio</div>
+      <div class="platform-desc">Real-time Google dashboard connected to BigQuery and Google Sheets</div>
+      <div class="platform-tags">
+        <span class="platform-tag">BigQuery</span>
+        <span class="platform-tag">Sheets</span>
+        <span class="platform-tag">Geo Maps</span>
+        <span class="platform-tag">Scorecards</span>
       </div>
-      <div class="bar-chart" id="recovery-chart"></div>
+    </div>
+    <div class="platform-status" style="color:#1a7f37">
+      <div class="status-dot" style="background:#1a7f37"></div>
+      <a href="https://lookerstudio.google.com" target="_blank" style="color:#0969da;text-decoration:none;font-size:13px">link coming soon ↗</a>
     </div>
   </div>
 
-  <!-- GLOBAL TREND -->
-  <div class="section-header">
-    <h2>Global Trend — Apr to Jul 2020</h2>
-    <div class="section-line"></div>
-  </div>
-
-  <div class="chart-full chart-card" style="padding-bottom:20px;">
-    <div class="chart-title">
-      <div class="chart-title-dot" style="background:var(--accent)"></div>
-      90-Day Growth Trajectory
-      <span style="margin-left:auto;display:flex;gap:20px;font-size:10px;">
-        <span style="color:var(--confirmed)">■ Confirmed</span>
-        <span style="color:var(--active)">■ Active</span>
-        <span style="color:var(--recovered)">■ Recovered</span>
-        <span style="color:var(--deaths)">■ Deaths</span>
-      </span>
-    </div>
-    <svg id="trend-svg" class="trend-svg" height="220" viewBox="0 0 900 220"></svg>
-  </div>
-
-  <!-- REGIONAL DISTRIBUTION + PIE -->
-  <div class="section-header">
-    <h2>Regional Distribution</h2>
-    <div class="section-line"></div>
-  </div>
-
-  <div class="chart-grid-2">
-    <!-- Regional Bar -->
-    <div class="chart-card">
-      <div class="chart-title">
-        <div class="chart-title-dot" style="background:var(--accent4)"></div>
-        WHO Region — Cases / Deaths / Recovered
+  <div class="platform-row">
+    <div class="platform-icon">📈</div>
+    <div class="platform-info">
+      <div class="platform-name">Tableau Public</div>
+      <div class="platform-desc">Published live workbook with LOD calculations, parameters, and filter actions</div>
+      <div class="platform-tags">
+        <span class="platform-tag">LOD Calc</span>
+        <span class="platform-tag">Parameters</span>
+        <span class="platform-tag">Actions</span>
+        <span class="platform-tag">Sets</span>
       </div>
-      <div id="regional-chart"></div>
     </div>
+    <div class="platform-status" style="color:#8250df">
+      <div class="status-dot" style="background:#8250df"></div>
+      <a href="https://public.tableau.com" target="_blank" style="color:#0969da;text-decoration:none;font-size:13px">link coming soon ↗</a>
+    </div>
+  </div>
+</div>
 
-    <!-- Pie Chart -->
-    <div class="chart-card">
-      <div class="chart-title">
-        <div class="chart-title-dot" style="background:var(--accent)"></div>
-        Confirmed Cases by WHO Region (%)
+<hr>
+
+<!-- PROJECT STRUCTURE -->
+<h2>🗂️ Project Structure</h2>
+
+<div class="filetree">
+  <div class="ft-root">📁 COVID19-Analytics-Dashboard/</div>
+  <div style="padding-left:16px">
+    <div class="ft-item"><span class="ft-conn">├──</span><span class="ft-ico">📓</span><span class="ft-name nb">COVID19_Analytics_Dashboard.ipynb</span><span class="ft-desc"> — Main analysis notebook</span></div>
+    <div class="ft-item"><span class="ft-conn">├──</span><span class="ft-ico">🖼️</span><span class="ft-name img">01_kpi_cards.png</span><span class="ft-desc"> — Global KPI summary</span></div>
+    <div class="ft-item"><span class="ft-conn">├──</span><span class="ft-ico">🖼️</span><span class="ft-name img">02_top10_countries.png</span><span class="ft-desc"> — Top 10 countries bar chart</span></div>
+    <div class="ft-item"><span class="ft-conn">├──</span><span class="ft-ico">🖼️</span><span class="ft-name img">03_regional_distribution.png</span><span class="ft-desc"> — Regional grouped bar chart</span></div>
+    <div class="ft-item"><span class="ft-conn">├──</span><span class="ft-ico">🖼️</span><span class="ft-name img">04_recovery_rate.png</span><span class="ft-desc"> — Recovery rate by country</span></div>
+    <div class="ft-item"><span class="ft-conn">├──</span><span class="ft-ico">🖼️</span><span class="ft-name img">05_global_trend.png</span><span class="ft-desc"> — 90-day global growth trends</span></div>
+    <div class="ft-item"><span class="ft-conn">├──</span><span class="ft-ico">🖼️</span><span class="ft-name img">05_timeseries.png</span><span class="ft-desc"> — Time series Apr–Jun 2020</span></div>
+    <div class="ft-item"><span class="ft-conn">├──</span><span class="ft-ico">🖼️</span><span class="ft-name img">06_regional_pie.png</span><span class="ft-desc"> — WHO region pie chart</span></div>
+    <div class="ft-item"><span class="ft-conn">├──</span><span class="ft-ico">🖼️</span><span class="ft-name img">07_wow_growth.png</span><span class="ft-desc"> — Week-over-week growth leaders</span></div>
+    <div class="ft-item"><span class="ft-conn">├──</span><span class="ft-ico">🖼️</span><span class="ft-name img">08_active_vs_recovered.png</span><span class="ft-desc"> — Active vs Recovered stacked bar</span></div>
+    <div class="ft-item"><span class="ft-conn">├──</span><span class="ft-ico">🖼️</span><span class="ft-name img">09_heatmap.png</span><span class="ft-desc"> — Country metrics heatmap (CFR%)</span></div>
+    <div class="ft-item"><span class="ft-conn">├──</span><span class="ft-ico">📋</span><span class="ft-name md">README.md</span><span class="ft-desc"> — Documentation and insights</span></div>
+    <div class="ft-item"><span class="ft-conn">└──</span><span class="ft-ico">📄</span><span class="ft-name">LICENSE</span><span class="ft-desc"> — MIT License</span></div>
+  </div>
+</div>
+
+<hr>
+
+<!-- KEY INSIGHTS -->
+<h2>📈 Key Insights</h2>
+
+<div class="callout">
+  <span class="callout-icon">🌍</span>
+  <span class="callout-text"><strong>Americas dominate globally</strong> — The Americas account for <strong>52.8%</strong> of all confirmed cases worldwide, nearly triple Europe's share of 20.0%. Over 70% of global cases were concentrated in just two regions.</span>
+</div>
+
+<div class="callout red">
+  <span class="callout-icon">🇺🇸</span>
+  <span class="callout-text"><strong>US leads by a wide margin</strong> — The United States recorded ~4.2M confirmed cases, more than Brazil (~2.5M) and India (~1.5M) combined — 25.5% of the global total at the dataset cutoff.</span>
+</div>
+
+<div class="callout green">
+  <span class="callout-icon">💊</span>
+  <span class="callout-text"><strong>Chile tops recovery rates</strong> — Chile leads all countries with a recovery rate exceeding <strong>95%</strong>, while the United Kingdom sits at the bottom with under 5% — likely due to national reporting differences.</span>
+</div>
+
+<div class="callout red">
+  <span class="callout-icon">☠️</span>
+  <span class="callout-text"><strong>UK &amp; Mexico: high CFR outliers</strong> — Despite relatively fewer cases, the UK has a CFR of <strong>15.33%</strong> and Mexico <strong>11.14%</strong>, far above the global average, signalling severe healthcare strain.</span>
+</div>
+
+<div class="callout amber">
+  <span class="callout-icon">📈</span>
+  <span class="callout-text"><strong>Steep growth Apr–Jul 2020</strong> — Global confirmed cases grew from ~1M to ~16M in just 90 days (a 16× increase), with recoveries lagging significantly behind.</span>
+</div>
+
+<div class="callout red">
+  <span class="callout-icon">🚀</span>
+  <span class="callout-text"><strong>Fastest surge: Papua New Guinea &amp; Gambia</strong> — Week-over-week growth exceeded <strong>200%+</strong> in smaller nations, signalling emerging outbreak zones with limited healthcare capacity.</span>
+</div>
+
+<div class="callout amber">
+  <span class="callout-icon">🔥</span>
+  <span class="callout-text"><strong>US active cases critically high</strong> — The US had ~2.15M active cases with recovered only slightly ahead, indicating enormous concurrent pressure on healthcare systems.</span>
+</div>
+
+<div class="callout purple">
+  <span class="callout-icon">🌐</span>
+  <span class="callout-text"><strong>South-East Asia &amp; Eastern Mediterranean rising</strong> — Together ~20% of global cases, showing spread well beyond initial Western epicentres by mid-2020.</span>
+</div>
+
+<hr>
+
+<!-- TECH STACK -->
+<h2>🛠️ Tech Stack</h2>
+
+<table>
+  <thead><tr><th>Category</th><th>Tools</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Language</strong></td><td>Python 3.x</td></tr>
+    <tr><td><strong>Data Analysis</strong></td><td>Pandas, NumPy</td></tr>
+    <tr><td><strong>Visualization</strong></td><td>Matplotlib, Seaborn</td></tr>
+    <tr><td><strong>Notebook Environment</strong></td><td>Jupyter Notebook</td></tr>
+    <tr><td><strong>BI Platforms</strong></td><td>Power BI, Tableau Public, Looker Studio</td></tr>
+    <tr><td><strong>Data Source</strong></td><td>WHO COVID-19 Global Dataset</td></tr>
+    <tr><td><strong>Version Control</strong></td><td>Git, GitHub</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<!-- GETTING STARTED -->
+<h2>🚀 Getting Started</h2>
+
+<p>1. <strong>Clone the repository</strong></p>
+<pre><code>git clone https://github.com/ZeagelOg/COVID19-Analytics-Dashboard.git
+cd COVID19-Analytics-Dashboard</code></pre>
+
+<p>2. <strong>Install dependencies</strong></p>
+<pre><code>pip install pandas numpy matplotlib seaborn jupyter</code></pre>
+
+<p>3. <strong>Launch the notebook</strong></p>
+<pre><code>jupyter notebook COVID19_Analytics_Dashboard.ipynb</code></pre>
+
+<p>4. <strong>Run all cells</strong> — Charts are auto-saved as <code>.png</code> files in the project root.</p>
+
+<hr>
+
+<!-- CHARTS PREVIEW -->
+<h2>📁 Charts Preview</h2>
+
+<!-- Chart 1: Top 10 + Recovery -->
+<div class="chart-grid-2" style="margin-bottom:16px">
+  <div class="chart-block" style="margin-bottom:0">
+    <div class="chart-inner">
+      <div class="chart-title-label">🏆 Top 10 Countries — Confirmed Cases</div>
+      <div class="bar-list" id="top10"></div>
+    </div>
+    <div class="chart-caption">02_top10_countries.png — Confirmed cases by country</div>
+  </div>
+  <div class="chart-block" style="margin-bottom:0">
+    <div class="chart-inner">
+      <div class="chart-title-label">💚 Recovery Rate by Country (%)</div>
+      <div class="bar-list" id="recovery"></div>
+    </div>
+    <div class="chart-caption">04_recovery_rate.png — Chile leads at 95%+</div>
+  </div>
+</div>
+
+<!-- Chart 2: Global Trend -->
+<div class="chart-block">
+  <div class="chart-inner">
+    <div class="chart-title-label">📈 Global COVID-19 Growth Trends — Apr to Jul 2020</div>
+    <svg id="trend-svg" class="trend-svg" height="220"></svg>
+    <div class="mini-legend">
+      <div class="mini-leg-item"><div class="mini-leg-sq" style="background:#0969da"></div>Confirmed</div>
+      <div class="mini-leg-item"><div class="mini-leg-sq" style="background:#9a6700"></div>Active</div>
+      <div class="mini-leg-item"><div class="mini-leg-sq" style="background:#1a7f37"></div>Recovered</div>
+      <div class="mini-leg-item"><div class="mini-leg-sq" style="background:#cf222e"></div>Deaths</div>
+    </div>
+  </div>
+  <div class="chart-caption">05_global_trend.png — 16× growth in 90 days</div>
+</div>
+
+<!-- Chart 3: Regional + Pie -->
+<div class="chart-grid-2" style="margin-bottom:16px">
+  <div class="chart-block" style="margin-bottom:0">
+    <div class="chart-inner">
+      <div class="chart-title-label">🗺️ Regional Distribution of Cases</div>
+      <div class="rgn-list" id="regional"></div>
+      <div class="mini-legend">
+        <div class="mini-leg-item"><div class="mini-leg-sq" style="background:#0969da"></div>Cases</div>
+        <div class="mini-leg-item"><div class="mini-leg-sq" style="background:#cf222e"></div>Deaths</div>
+        <div class="mini-leg-item"><div class="mini-leg-sq" style="background:#1a7f37"></div>Recovered</div>
       </div>
-      <div class="donut-wrapper">
-        <svg id="donut-svg" class="donut-svg" width="180" height="180" viewBox="0 0 180 180"></svg>
+    </div>
+    <div class="chart-caption">03_regional_distribution.png</div>
+  </div>
+  <div class="chart-block" style="margin-bottom:0">
+    <div class="chart-inner">
+      <div class="chart-title-label">🥧 Confirmed Cases by WHO Region</div>
+      <div class="donut-wrap">
+        <svg id="donut-svg" width="165" height="165" viewBox="0 0 165 165" style="flex-shrink:0"></svg>
         <div class="donut-legend" id="donut-legend"></div>
       </div>
     </div>
+    <div class="chart-caption">06_regional_pie.png — Americas: 52.8%</div>
   </div>
-
-  <!-- GROWTH + ACTIVE vs RECOVERED -->
-  <div class="section-header">
-    <h2>Outbreak Dynamics</h2>
-    <div class="section-line"></div>
-  </div>
-
-  <div class="chart-grid-2">
-    <!-- WoW Growth -->
-    <div class="chart-card">
-      <div class="chart-title">
-        <div class="chart-title-dot" style="background:var(--deaths)"></div>
-        Top 10 — Fastest Week-over-Week Growth
-      </div>
-      <div id="growth-chart"></div>
-    </div>
-
-    <!-- Active vs Recovered -->
-    <div class="chart-card">
-      <div class="chart-title">
-        <div class="chart-title-dot" style="background:var(--active)"></div>
-        Active vs Recovered Cases per Country
-      </div>
-      <div id="stacked-chart"></div>
-    </div>
-  </div>
-
-  <!-- HEATMAP -->
-  <div class="section-header">
-    <h2>Country Metrics Heatmap — CFR%</h2>
-    <div class="section-line"></div>
-  </div>
-
-  <div class="chart-full chart-card">
-    <div class="chart-title">
-      <div class="chart-title-dot" style="background:var(--deaths)"></div>
-      Case Fatality Rate & Key Metrics — Top 10 Countries
-    </div>
-    <div style="overflow-x:auto;">
-      <table class="heatmap-table" id="heatmap-table"></table>
-    </div>
-  </div>
-
-  <!-- FOOTER -->
-  <footer>
-    <span>Data Source: WHO COVID-19 Global Dataset</span>
-    <span>Apr–Jul 2020 · Built with Python · Pandas · Matplotlib</span>
-  </footer>
 </div>
 
-<div class="tooltip" id="tooltip"></div>
+<!-- Chart 4: Growth + Stacked -->
+<div class="chart-grid-2" style="margin-bottom:16px">
+  <div class="chart-block" style="margin-bottom:0">
+    <div class="chart-inner">
+      <div class="chart-title-label">🚀 Top 10 — Fastest WoW Case Growth</div>
+      <div class="grw-list" id="growth"></div>
+    </div>
+    <div class="chart-caption">07_wow_growth.png — PNG & Gambia 200%+</div>
+  </div>
+  <div class="chart-block" style="margin-bottom:0">
+    <div class="chart-inner">
+      <div class="chart-title-label">⚡ Active vs Recovered Cases</div>
+      <div class="stk-list" id="stacked"></div>
+      <div class="mini-legend">
+        <div class="mini-leg-item"><div class="mini-leg-sq" style="background:#1a7f37"></div>Recovered</div>
+        <div class="mini-leg-item"><div class="mini-leg-sq" style="background:#9a6700"></div>Active</div>
+      </div>
+    </div>
+    <div class="chart-caption">08_active_vs_recovered.png</div>
+  </div>
+</div>
+
+<!-- Chart 5: Heatmap -->
+<div class="chart-block">
+  <div class="chart-inner">
+    <div class="chart-title-label">🔥 Country Metrics Heatmap — CFR%</div>
+    <div style="overflow-x:auto">
+      <table class="heat-tbl" id="heatmap"></table>
+    </div>
+  </div>
+  <div class="chart-caption">09_heatmap.png — UK (15.33%) and Mexico (11.14%) are stark CFR outliers</div>
+</div>
+
+<hr>
+
+<!-- DATA SOURCE -->
+<h2>📌 Data Source</h2>
+<p>COVID-19 data sourced from the <a href="https://covid19.who.int/data" style="color:#0969da">WHO COVID-19 Global Dataset</a> covering the Apr–Jul 2020 pandemic period.</p>
+
+<hr>
+
+<!-- LICENSE -->
+<h2>📄 License</h2>
+<p>This project is open-source and available under the <a href="#" style="color:#0969da">MIT License</a>.</p>
+
+</div><!-- /.page -->
 
 <script>
-// ============================================================
-// DATA
-// ============================================================
+// ─── DATA ───
 const top10 = [
-  { country: 'USA', cases: 4200000, color: '#00e5ff' },
-  { country: 'Brazil', cases: 2500000, color: '#00c4d8' },
-  { country: 'India', cases: 1500000, color: '#00a3b0' },
-  { country: 'Russia', cases: 820000, color: '#008a92' },
-  { country: 'S. Africa', cases: 450000, color: '#007077' },
-  { country: 'Mexico', cases: 390000, color: '#005a5f' },
-  { country: 'Peru', cases: 370000, color: '#004448' },
-  { country: 'Chile', cases: 340000, color: '#003b40' },
-  { country: 'UK', cases: 300000, color: '#00e5ff' },
-  { country: 'Iran', cases: 290000, color: '#00c4d8' },
+  {c:'USA',       v:4200000},{c:'Brazil',    v:2500000},{c:'India',     v:1500000},
+  {c:'Russia',    v:820000}, {c:'S. Africa', v:450000}, {c:'Mexico',    v:390000},
+  {c:'Peru',      v:370000}, {c:'Chile',     v:340000}, {c:'UK',        v:300000},
+  {c:'Iran',      v:290000},
 ];
-
-const recoveryRates = [
-  { country: 'Chile', rate: 95.2, color: '#39ff6e' },
-  { country: 'Iran', rate: 85.1, color: '#2fd660' },
-  { country: 'Russia', rate: 78.3, color: '#24ad4e' },
-  { country: 'S. Africa', rate: 62.5, color: '#1a8a3c' },
-  { country: 'Brazil', rate: 58.7, color: '#116a2b' },
-  { country: 'India', rate: 55.2, color: '#0e5a24' },
-  { country: 'Peru', rate: 49.8, color: '#0a4a1c' },
-  { country: 'USA', rate: 45.1, color: '#073c16' },
-  { country: 'Mexico', rate: 28.6, color: '#1a8a3c' },
-  { country: 'UK', rate: 4.8, color: '#ff4b6e' },
+const recovery = [
+  {c:'Chile',     r:95.2},{c:'Iran',      r:85.1},{c:'Russia',    r:78.3},
+  {c:'S. Africa', r:62.5},{c:'Brazil',    r:58.7},{c:'India',     r:55.2},
+  {c:'Peru',      r:49.8},{c:'USA',       r:45.1},{c:'Mexico',    r:28.6},
+  {c:'UK',        r:4.8},
 ];
-
+const trend = [
+  {l:'Apr 1',  cf:1000000,  rc:210000,  ac:760000,  dt:30000},
+  {l:'Apr 15', cf:2100000,  rc:480000,  ac:1520000, dt:100000},
+  {l:'May 1',  cf:3300000,  rc:1000000, ac:2100000, dt:200000},
+  {l:'May 15', cf:4800000,  rc:1800000, ac:2700000, dt:300000},
+  {l:'Jun 1',  cf:6800000,  rc:3200000, ac:3300000, dt:300000},
+  {l:'Jun 15', cf:9500000,  rc:5100000, ac:4050000, dt:350000},
+  {l:'Jul 1',  cf:16480000, rc:9470000, ac:6360000, dt:654000},
+];
 const regions = [
-  { name: 'Americas', cases: 8500, deaths: 320, recovered: 5200, color: '#00e5ff' },
-  { name: 'Europe', cases: 3300, deaths: 210, recovered: 2400, color: '#ff4b6e' },
-  { name: 'SE Asia', cases: 2000, deaths: 48, recovered: 1200, color: '#39ff6e' },
-  { name: 'E. Medit.', cases: 1400, deaths: 37, recovered: 950, color: '#ffb800' },
-  { name: 'Africa', cases: 870, deaths: 18, recovered: 480, color: '#a855f7' },
-  { name: 'W. Pacific', cases: 310, deaths: 8, recovered: 250, color: '#fb923c' },
+  {n:'Americas',   cases:8500,deaths:320,rec:5200},
+  {n:'Europe',     cases:3300,deaths:210,rec:2400},
+  {n:'SE Asia',    cases:2000,deaths:48, rec:1200},
+  {n:'E. Medit.',  cases:1400,deaths:37, rec:950},
+  {n:'Africa',     cases:870, deaths:18, rec:480},
+  {n:'W. Pacific', cases:310, deaths:8,  rec:250},
 ];
-
-const regionPie = [
-  { name: 'Americas', pct: 52.8, color: '#00e5ff' },
-  { name: 'Europe', pct: 20.0, color: '#ff4b6e' },
-  { name: 'SE Asia', pct: 11.5, color: '#39ff6e' },
-  { name: 'E. Medit.', pct: 8.5, color: '#ffb800' },
-  { name: 'Africa', pct: 5.3, color: '#a855f7' },
-  { name: 'W. Pacific', pct: 1.9, color: '#fb923c' },
+const pieData = [
+  {n:'Americas',   p:52.8,col:'#0969da'},
+  {n:'Europe',     p:20.0,col:'#cf222e'},
+  {n:'SE Asia',    p:11.5,col:'#1a7f37'},
+  {n:'E. Medit.',  p:8.5, col:'#9a6700'},
+  {n:'Africa',     p:5.3, col:'#8250df'},
+  {n:'W. Pacific', p:1.9, col:'#0550ae'},
 ];
-
-const growthData = [
-  { country: 'Papua New Guinea', rate: 212, color: '#ff4b6e' },
-  { country: 'Gambia', rate: 194, color: '#ff6b4b' },
-  { country: 'Bahamas', rate: 178, color: '#ff8b4b' },
-  { country: 'Zimbabwe', rate: 165, color: '#ffab4b' },
-  { country: 'Libya', rate: 153, color: '#ffb800' },
-  { country: 'Ethiopia', rate: 142, color: '#ffc800' },
-  { country: 'Botswana', rate: 131, color: '#ffd800' },
-  { country: 'Lesotho', rate: 121, color: '#ffe800' },
-  { country: 'Suriname', rate: 112, color: '#fff200' },
-  { country: 'Costa Rica', rate: 103, color: '#f0ff00' },
+const growth = [
+  {c:'Papua New Guinea',r:212},{c:'Gambia',r:194},{c:'Bahamas',r:178},
+  {c:'Zimbabwe',r:165},{c:'Libya',r:153},{c:'Ethiopia',r:142},
+  {c:'Botswana',r:131},{c:'Lesotho',r:121},{c:'Suriname',r:112},{c:'Costa Rica',r:103},
 ];
-
-const activeVsRecovered = [
-  { country: 'USA', active: 2150000, recovered: 1890000 },
-  { country: 'Brazil', active: 900000, recovered: 1450000 },
-  { country: 'India', active: 600000, recovered: 830000 },
-  { country: 'Russia', active: 175000, recovered: 642000 },
-  { country: 'UK', active: 285000, recovered: 14000 },
-  { country: 'Mexico', active: 270000, recovered: 110000 },
-  { country: 'S. Africa', active: 165000, recovered: 281000 },
-  { country: 'Chile', active: 15000, recovered: 323000 },
+const stacked = [
+  {c:'USA',     ac:2150000,rc:1890000},{c:'Brazil',  ac:900000, rc:1450000},
+  {c:'India',   ac:600000, rc:830000}, {c:'Russia',  ac:175000, rc:642000},
+  {c:'UK',      ac:285000, rc:14000},  {c:'Mexico',  ac:270000, rc:110000},
+  {c:'S.Africa',ac:165000, rc:281000}, {c:'Chile',   ac:15000,  rc:323000},
 ];
-
-const heatmapData = [
-  { country: 'USA', confirmed: 4200000, deaths: 145000, recovered: 1890000, active: 2150000, cfr: 3.45 },
-  { country: 'Brazil', confirmed: 2500000, deaths: 89000, recovered: 1450000, active: 900000, cfr: 3.56 },
-  { country: 'India', confirmed: 1500000, deaths: 33000, recovered: 830000, active: 600000, cfr: 2.20 },
-  { country: 'Russia', confirmed: 820000, deaths: 13400, recovered: 642000, active: 175000, cfr: 1.63 },
-  { country: 'S. Africa', confirmed: 450000, deaths: 7000, recovered: 281000, active: 165000, cfr: 1.56 },
-  { country: 'Mexico', confirmed: 390000, deaths: 43000, recovered: 110000, active: 270000, cfr: 11.14 },
-  { country: 'Peru', confirmed: 370000, deaths: 17000, recovered: 184000, active: 170000, cfr: 4.59 },
-  { country: 'Chile', confirmed: 340000, deaths: 9000, recovered: 323000, active: 15000, cfr: 2.65 },
-  { country: 'UK', confirmed: 300000, deaths: 46000, recovered: 14000, active: 285000, cfr: 15.33 },
-  { country: 'Iran', confirmed: 290000, deaths: 15600, recovered: 246000, active: 28000, cfr: 5.38 },
+const heatData = [
+  {c:'USA',     cf:4200000,dt:145000,rc:1890000,ac:2150000,cfr:3.45},
+  {c:'Brazil',  cf:2500000,dt:89000, rc:1450000,ac:900000, cfr:3.56},
+  {c:'India',   cf:1500000,dt:33000, rc:830000, ac:600000, cfr:2.20},
+  {c:'Russia',  cf:820000, dt:13400, rc:642000, ac:175000, cfr:1.63},
+  {c:'S.Africa',cf:450000, dt:7000,  rc:281000, ac:165000, cfr:1.56},
+  {c:'Mexico',  cf:390000, dt:43000, rc:110000, ac:270000, cfr:11.14},
+  {c:'Peru',    cf:370000, dt:17000, rc:184000, ac:170000, cfr:4.59},
+  {c:'Chile',   cf:340000, dt:9000,  rc:323000, ac:15000,  cfr:2.65},
+  {c:'UK',      cf:300000, dt:46000, rc:14000,  ac:285000, cfr:15.33},
+  {c:'Iran',    cf:290000, dt:15600, rc:246000, ac:28000,  cfr:5.38},
 ];
-
-// Trend data (Apr 1 – Jul 1, monthly points)
-const trendData = [
-  { label: 'Apr 1', confirmed: 1000000, recovered: 210000, active: 760000, deaths: 30000 },
-  { label: 'Apr 15', confirmed: 2100000, recovered: 480000, active: 1520000, deaths: 100000 },
-  { label: 'May 1', confirmed: 3300000, recovered: 1000000, active: 2100000, deaths: 200000 },
-  { label: 'May 15', confirmed: 4800000, recovered: 1800000, active: 2700000, deaths: 300000 },
-  { label: 'Jun 1', confirmed: 6800000, recovered: 3200000, active: 3300000, deaths: 300000 },
-  { label: 'Jun 15', confirmed: 9500000, recovered: 5100000, active: 4050000, deaths: 350000 },
-  { label: 'Jul 1', confirmed: 16480000, recovered: 9470000, active: 6360000, deaths: 654000 },
-];
-
-// ============================================================
-// RENDER FUNCTIONS
-// ============================================================
 
 function fmt(n) {
-  if (n >= 1000000) return (n/1000000).toFixed(1)+'M';
-  if (n >= 1000) return (n/1000).toFixed(0)+'K';
+  if(n>=1000000) return (n/1e6).toFixed(1)+'M';
+  if(n>=1000)    return (n/1000).toFixed(0)+'K';
   return n;
 }
 
-// KPI counter animation
-function animateCounters() {
-  document.querySelectorAll('.kpi-value[data-target]').forEach(el => {
+// KPI counters
+function animateKPIs() {
+  document.querySelectorAll('.kpi-num[data-target]').forEach(el => {
+    const span = el.querySelector('.kc');
     const target = parseFloat(el.dataset.target);
-    const suffix = el.dataset.target.includes('.') && target < 100 ? '' : '';
-    let start = 0;
-    const duration = 1500;
-    const step = (timestamp) => {
-      if (!start) start = timestamp;
-      const p = Math.min((timestamp - start) / duration, 1);
-      const ease = 1 - Math.pow(1 - p, 3);
-      el.textContent = (ease * target).toFixed(target < 100 ? 2 : 0);
-      if (p < 1) requestAnimationFrame(step);
-      else el.textContent = target < 100 ? target.toFixed(2) : target.toFixed(0);
+    const dec = parseInt(el.dataset.dec);
+    let start = null;
+    const step = ts => {
+      if(!start) start = ts;
+      const p = Math.min((ts-start)/1600, 1);
+      const e = 1-Math.pow(1-p, 3);
+      span.textContent = (e*target).toFixed(dec);
+      if(p<1) requestAnimationFrame(step);
+      else span.textContent = target.toFixed(dec);
     };
     requestAnimationFrame(step);
   });
 }
 
-// Top 10 bar chart
+// Top 10
 function renderTop10() {
-  const max = top10[0].cases;
-  const el = document.getElementById('top10-chart');
-  top10.forEach((d, i) => {
-    const pct = (d.cases / max * 100).toFixed(1);
-    el.innerHTML += `
-      <div class="bar-row">
-        <div class="bar-rank">${i+1}</div>
-        <div class="bar-label">${d.country}</div>
-        <div class="bar-track">
-          <div class="bar-fill" style="background:linear-gradient(90deg,${d.color},${d.color}88);width:0%"
-            data-width="${pct}" data-val="${fmt(d.cases)}"></div>
-        </div>
-      </div>`;
+  const el = document.getElementById('top10');
+  const max = top10[0].v;
+  top10.forEach((d,i) => {
+    const p = (d.v/max*100).toFixed(1);
+    el.innerHTML += `<div class="bar-row">
+      <div class="bar-rank">${i+1}</div>
+      <div class="bar-lbl">${d.c}</div>
+      <div class="bar-track"><div class="bar-fill" style="background:#0969da" data-w="${p}" data-v="${fmt(d.v)}"></div></div>
+    </div>`;
   });
 }
 
-// Recovery rate bar chart
+// Recovery
 function renderRecovery() {
-  const el = document.getElementById('recovery-chart');
-  recoveryRates.forEach((d, i) => {
-    el.innerHTML += `
-      <div class="bar-row">
-        <div class="bar-rank">${i+1}</div>
-        <div class="bar-label">${d.country}</div>
-        <div class="bar-track">
-          <div class="bar-fill" style="background:linear-gradient(90deg,${d.color},${d.color}88);width:0%"
-            data-width="${d.rate}" data-val="${d.rate}%"></div>
-        </div>
-      </div>`;
+  const el = document.getElementById('recovery');
+  recovery.forEach((d,i) => {
+    const col = d.r < 10 ? '#cf222e' : d.r > 70 ? '#1a7f37' : '#0969da';
+    el.innerHTML += `<div class="bar-row">
+      <div class="bar-rank">${i+1}</div>
+      <div class="bar-lbl">${d.c}</div>
+      <div class="bar-track"><div class="bar-fill" style="background:${col}" data-w="${d.r}" data-v="${d.r}%"></div></div>
+    </div>`;
   });
 }
 
 // Trend SVG
 function renderTrend() {
   const svg = document.getElementById('trend-svg');
-  const W = svg.parentElement.offsetWidth - 48;
+  const W = svg.parentElement.offsetWidth - 40 || 780;
   const H = 200;
   svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.setAttribute('width', W);
 
-  const maxVal = 18000000;
-  const pad = { left: 60, right: 20, top: 10, bottom: 30 };
-  const iW = W - pad.left - pad.right;
-  const iH = H - pad.top - pad.bottom;
-  const n = trendData.length;
+  const maxV = 18000000;
+  const pl=60,pr=16,pt=12,pb=28;
+  const iW=W-pl-pr, iH=H-pt-pb;
+  const n=trend.length;
+  const X = i => pl+(i/(n-1))*iW;
+  const Y = v => pt+iH-(v/maxV)*iH;
 
-  const x = i => pad.left + (i / (n-1)) * iW;
-  const y = v => pad.top + iH - (v / maxVal * iH);
-
-  // Grid lines
-  let gridLines = '';
-  [0, 0.25, 0.5, 0.75, 1].forEach(pct => {
-    const yv = pad.top + iH * (1 - pct);
-    const val = pct * maxVal;
-    gridLines += `<line x1="${pad.left}" x2="${W-pad.right}" y1="${yv}" y2="${yv}" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>`;
-    gridLines += `<text x="${pad.left - 6}" y="${yv + 4}" text-anchor="end" fill="#5a6a80" font-size="9" font-family="Space Mono,monospace">${fmt(val)}</text>`;
+  let grid='';
+  [0,.25,.5,.75,1].forEach(p=>{
+    const yy=pt+iH*(1-p);
+    grid+=`<line x1="${pl}" x2="${W-pr}" y1="${yy}" y2="${yy}" stroke="#d1d9e0" stroke-width="1"/>`;
+    grid+=`<text x="${pl-5}" y="${yy+4}" text-anchor="end" fill="#656d76" font-size="9" font-family="monospace">${fmt(p*maxV)}</text>`;
+  });
+  let xlbls='';
+  trend.forEach((d,i)=>{
+    xlbls+=`<text x="${X(i)}" y="${H-4}" text-anchor="middle" fill="#656d76" font-size="9" font-family="monospace">${d.l}</text>`;
   });
 
-  // X labels
-  let xLabels = '';
-  trendData.forEach((d, i) => {
-    xLabels += `<text x="${x(i)}" y="${H - 6}" text-anchor="middle" fill="#5a6a80" font-size="9" font-family="Space Mono,monospace">${d.label}</text>`;
-  });
-
-  // Lines
-  const lines = [
-    { key: 'confirmed', color: '#00e5ff', width: 2.5 },
-    { key: 'active', color: '#ffb800', width: 2 },
-    { key: 'recovered', color: '#39ff6e', width: 2 },
-    { key: 'deaths', color: '#ff4b6e', width: 1.5 },
+  const series=[
+    {key:'cf',col:'#0969da',w:2.5,delay:0},
+    {key:'ac',col:'#9a6700',w:2,  delay:300},
+    {key:'rc',col:'#1a7f37',w:2,  delay:600},
+    {key:'dt',col:'#cf222e',w:1.5,delay:900},
   ];
 
-  let paths = '';
-  lines.forEach(({ key, color, width }) => {
-    const pts = trendData.map((d, i) => `${i === 0 ? 'M' : 'L'}${x(i)},${y(d[key])}`).join(' ');
-    paths += `<path d="${pts}" fill="none" stroke="${color}" stroke-width="${width}" stroke-linecap="round" stroke-linejoin="round" class="trend-line" style="animation-delay:${lines.indexOf(arguments[0]) * 0.2}s"/>`;
-    // Dots
-    trendData.forEach((d, i) => {
-      paths += `<circle cx="${x(i)}" cy="${y(d[key])}" r="3" fill="${color}" opacity="0.8"/>`;
+  // area fill under confirmed
+  const areaPts = trend.map((d,i)=>`${i===0?'M':'L'}${X(i)},${Y(d.cf)}`).join(' ');
+  let paths=`<defs><linearGradient id="ag" x1="0" x2="0" y1="0" y2="1">
+    <stop offset="0%" stop-color="#0969da" stop-opacity="0.12"/>
+    <stop offset="100%" stop-color="#0969da" stop-opacity="0.01"/>
+  </linearGradient></defs>
+  <path d="${areaPts} L${X(n-1)},${pt+iH} L${X(0)},${pt+iH} Z" fill="url(#ag)"/>`;
+
+  series.forEach(s=>{
+    const pts=trend.map((d,i)=>`${i===0?'M':'L'}${X(i)},${Y(d[s.key])}`).join(' ');
+    paths+=`<path d="${pts}" fill="none" stroke="${s.col}" stroke-width="${s.w}" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="2000" stroke-dashoffset="2000" style="animation:draw 1.8s ${s.delay}ms ease forwards"/>`;
+    trend.forEach((d,i)=>{
+      paths+=`<circle cx="${X(i)}" cy="${Y(d[s.key])}" r="3" fill="${s.col}"/>`;
     });
   });
 
-  // Area fill for confirmed
-  const areaConf = trendData.map((d, i) => `${i === 0 ? 'M' : 'L'}${x(i)},${y(d.confirmed)}`).join(' ')
-    + ` L${x(n-1)},${pad.top+iH} L${x(0)},${pad.top+iH} Z`;
-
-  svg.innerHTML = `
-    <defs>
-      <linearGradient id="areaGrad" x1="0" x2="0" y1="0" y2="1">
-        <stop offset="0%" stop-color="#00e5ff" stop-opacity="0.12"/>
-        <stop offset="100%" stop-color="#00e5ff" stop-opacity="0"/>
-      </linearGradient>
-    </defs>
-    ${gridLines}
-    ${xLabels}
-    <path d="${areaConf}" fill="url(#areaGrad)"/>
-    ${paths}
-  `;
+  svg.innerHTML = `<style>@keyframes draw{to{stroke-dashoffset:0}}</style>${grid}${xlbls}${paths}`;
 }
 
-// Regional chart
+// Regional
 function renderRegional() {
-  const el = document.getElementById('regional-chart');
-  const maxC = Math.max(...regions.map(r => r.cases));
-  regions.forEach(r => {
-    el.innerHTML += `
-      <div class="region-row">
-        <div class="region-label">${r.name}</div>
-        <div class="region-bars">
-          <div class="region-mini-bar" style="background:${r.color};opacity:0.9" data-width="${r.cases/maxC*100}"></div>
-          <div class="region-mini-bar" style="background:#ff4b6e" data-width="${r.deaths/maxC*100}"></div>
-          <div class="region-mini-bar" style="background:#39ff6e" data-width="${r.recovered/maxC*100}"></div>
-        </div>
-        <div class="region-vals">${(r.cases/1000).toFixed(1)}K</div>
-      </div>`;
+  const el=document.getElementById('regional');
+  const maxC=Math.max(...regions.map(r=>r.cases));
+  regions.forEach(r=>{
+    el.innerHTML+=`<div class="rgn-row">
+      <div class="rgn-lbl">${r.n}</div>
+      <div class="rgn-bars">
+        <div class="rgn-bar" style="background:#0969da" data-w="${r.cases/maxC*100}"></div>
+        <div class="rgn-bar" style="background:#cf222e" data-w="${r.deaths/maxC*100}"></div>
+        <div class="rgn-bar" style="background:#1a7f37" data-w="${r.rec/maxC*100}"></div>
+      </div>
+      <div class="rgn-val">${(r.cases/1000).toFixed(1)}K</div>
+    </div>`;
   });
-  // Legend
-  el.innerHTML += `<div style="display:flex;gap:16px;margin-top:12px;font-family:Space Mono,monospace;font-size:10px;color:var(--muted)">
-    <span style="color:#00e5ff">■ Cases</span>
-    <span style="color:#ff4b6e">■ Deaths</span>
-    <span style="color:#39ff6e">■ Recovered</span>
-  </div>`;
 }
 
-// Donut chart
+// Donut
 function renderDonut() {
-  const svg = document.getElementById('donut-svg');
-  const legend = document.getElementById('donut-legend');
-  const cx = 90, cy = 90, r = 70, inner = 44;
-  let angle = -Math.PI / 2;
-  let paths = '';
-
-  regionPie.forEach(d => {
-    const sweep = (d.pct / 100) * Math.PI * 2;
-    const x1 = cx + r * Math.cos(angle);
-    const y1 = cy + r * Math.sin(angle);
-    const x2 = cx + r * Math.cos(angle + sweep);
-    const y2 = cy + r * Math.sin(angle + sweep);
-    const xi1 = cx + inner * Math.cos(angle);
-    const yi1 = cy + inner * Math.sin(angle);
-    const xi2 = cx + inner * Math.cos(angle + sweep);
-    const yi2 = cy + inner * Math.sin(angle + sweep);
-    const large = sweep > Math.PI ? 1 : 0;
-
-    paths += `<path d="M${xi1},${yi1} L${x1},${y1} A${r},${r} 0 ${large} 1 ${x2},${y2} L${xi2},${yi2} A${inner},${inner} 0 ${large} 0 ${xi1},${yi1} Z"
-      fill="${d.color}" opacity="0.85" class="donut-seg" style="transition:opacity 0.2s;"
-      onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.85"/>`;
-
-    legend.innerHTML += `
-      <div class="legend-item">
-        <div class="legend-dot" style="background:${d.color}"></div>
-        <span class="legend-name">${d.name}</span>
-        <span class="legend-pct">${d.pct}%</span>
-      </div>`;
-
-    angle += sweep;
+  const svg=document.getElementById('donut-svg');
+  const leg=document.getElementById('donut-legend');
+  const cx=82.5,cy=82.5,R=72,r=46;
+  let a=-Math.PI/2,paths='';
+  pieData.forEach(d=>{
+    const sw=(d.p/100)*Math.PI*2;
+    const x1=cx+R*Math.cos(a),y1=cy+R*Math.sin(a);
+    const x2=cx+R*Math.cos(a+sw),y2=cy+R*Math.sin(a+sw);
+    const xi1=cx+r*Math.cos(a),yi1=cy+r*Math.sin(a);
+    const xi2=cx+r*Math.cos(a+sw),yi2=cy+r*Math.sin(a+sw);
+    const lg=sw>Math.PI?1:0;
+    paths+=`<path d="M${xi1},${yi1} L${x1},${y1} A${R},${R} 0 ${lg} 1 ${x2},${y2} L${xi2},${yi2} A${r},${r} 0 ${lg} 0 ${xi1},${yi1} Z" fill="${d.col}" opacity="0.85" style="cursor:pointer;transition:opacity .2s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.85"/>`;
+    leg.innerHTML+=`<div class="leg-row"><div class="leg-dot" style="background:${d.col}"></div><span class="leg-name">${d.n}</span><span class="leg-pct">${d.p}%</span></div>`;
+    a+=sw;
   });
-
-  svg.innerHTML = paths + `
-    <text x="90" y="85" text-anchor="middle" fill="#e8edf5" font-size="14" font-weight="700" font-family="Syne,sans-serif">16.5M</text>
-    <text x="90" y="100" text-anchor="middle" fill="#5a6a80" font-size="9" font-family="Space Mono,monospace">TOTAL</text>`;
+  svg.innerHTML=paths
+    +`<text x="82.5" y="78" text-anchor="middle" fill="#1f2328" font-size="14" font-weight="700" font-family="-apple-system,sans-serif">16.5M</text>`
+    +`<text x="82.5" y="93" text-anchor="middle" fill="#656d76" font-size="9" font-family="monospace">CASES</text>`;
 }
 
-// WoW Growth chart
+// Growth
 function renderGrowth() {
-  const el = document.getElementById('growth-chart');
-  const max = growthData[0].rate;
-  growthData.forEach((d, i) => {
-    el.innerHTML += `
-      <div class="growth-bar-row">
-        <div class="growth-label">${d.country}</div>
-        <div class="growth-track">
-          <div class="growth-fill" data-width="${d.rate/max*100}" data-val="${d.rate}%"
-            style="background:linear-gradient(90deg,${d.color},${d.color}88)"></div>
-        </div>
-      </div>`;
+  const el=document.getElementById('growth');
+  const max=growth[0].r;
+  growth.forEach(d=>{
+    el.innerHTML+=`<div class="grw-row">
+      <div class="grw-lbl">${d.c}</div>
+      <div class="grw-track"><div class="grw-fill" data-w="${d.r/max*100}" data-v="${d.r}%"></div></div>
+    </div>`;
   });
 }
 
-// Active vs Recovered stacked bar
+// Stacked
 function renderStacked() {
-  const el = document.getElementById('stacked-chart');
-  const maxTotal = Math.max(...activeVsRecovered.map(d => d.active + d.recovered));
-  activeVsRecovered.forEach(d => {
-    const total = d.active + d.recovered;
-    const recPct = (d.recovered / total * 100).toFixed(1);
-    const actPct = (d.active / total * 100).toFixed(1);
-    el.innerHTML += `
-      <div class="stacked-row">
-        <div class="stacked-label">${d.country}</div>
-        <div class="stacked-track" style="width:${(total/maxTotal*100).toFixed(1)}%">
-          <div class="stacked-seg" style="background:#39ff6e" data-width="${recPct}"></div>
-          <div class="stacked-seg" style="background:#ffb800" data-width="${actPct}"></div>
-        </div>
-      </div>`;
+  const el=document.getElementById('stacked');
+  const maxT=Math.max(...stacked.map(d=>d.ac+d.rc));
+  stacked.forEach(d=>{
+    const t=d.ac+d.rc;
+    el.innerHTML+=`<div class="stk-row">
+      <div class="stk-lbl">${d.c}</div>
+      <div class="stk-track" style="width:${(t/maxT*100).toFixed(1)}%">
+        <div class="stk-seg" style="background:#1a7f37" data-w="${(d.rc/t*100).toFixed(1)}"></div>
+        <div class="stk-seg" style="background:#9a6700" data-w="${(d.ac/t*100).toFixed(1)}"></div>
+      </div>
+    </div>`;
   });
-  el.innerHTML += `<div style="display:flex;gap:16px;margin-top:12px;font-family:Space Mono,monospace;font-size:10px;color:var(--muted)">
-    <span style="color:#39ff6e">■ Recovered</span>
-    <span style="color:#ffb800">■ Active</span>
-  </div>`;
 }
 
 // Heatmap
 function renderHeatmap() {
-  const table = document.getElementById('heatmap-table');
-  const maxConf = Math.max(...heatmapData.map(d => d.confirmed));
-  const maxDeath = Math.max(...heatmapData.map(d => d.deaths));
-  const maxCFR = Math.max(...heatmapData.map(d => d.cfr));
-
-  table.innerHTML = `<thead><tr>
-    <th>Country</th>
-    <th>Confirmed</th>
-    <th>Deaths</th>
-    <th>Recovered</th>
-    <th>Active</th>
-    <th>CFR %</th>
-  </tr></thead><tbody></tbody>`;
-
-  const tbody = table.querySelector('tbody');
-  heatmapData.forEach(d => {
-    const cfrIntensity = d.cfr / maxCFR;
-    const r = Math.round(255 * cfrIntensity);
-    const g = Math.round(75 * (1 - cfrIntensity));
-    const cfrColor = `rgb(${r},${g},80)`;
-    const confIntensity = d.confirmed / maxConf;
-    const ci = Math.round(confIntensity * 100);
-
-    tbody.innerHTML += `<tr>
-      <td style="font-weight:700;color:var(--text)">${d.country}</td>
-      <td><span class="heat-cell" style="background:rgba(0,229,255,${confIntensity * 0.35});color:#e8edf5">${fmt(d.confirmed)}</span></td>
-      <td><span class="heat-cell" style="background:rgba(255,75,110,${d.deaths/maxDeath*0.5});color:#e8edf5">${fmt(d.deaths)}</span></td>
-      <td><span class="heat-cell" style="background:rgba(57,255,110,0.12);color:#39ff6e">${fmt(d.recovered)}</span></td>
-      <td><span class="heat-cell" style="background:rgba(255,184,0,0.12);color:#ffb800">${fmt(d.active)}</span></td>
-      <td><span class="heat-cell" style="background:${cfrColor}22;color:${cfrColor};border:1px solid ${cfrColor}44;font-weight:800">${d.cfr}%</span></td>
+  const tbl=document.getElementById('heatmap');
+  const maxCFR=Math.max(...heatData.map(d=>d.cfr));
+  tbl.innerHTML=`<thead><tr><th>Country</th><th>Confirmed</th><th>Deaths</th><th>Recovered</th><th>Active</th><th>CFR %</th></tr></thead><tbody></tbody>`;
+  const tb=tbl.querySelector('tbody');
+  heatData.forEach(d=>{
+    const ci=(d.cf/4200000*0.4);
+    const di=(d.dt/145000*0.4);
+    const cfrI=d.cfr/maxCFR;
+    const cfrCol=cfrI>0.6?'#cf222e':cfrI>0.3?'#9a6700':'#1a7f37';
+    tb.innerHTML+=`<tr>
+      <td>${d.c}</td>
+      <td><span class="heat-cell" style="background:rgba(9,105,218,${ci});color:#1f2328">${fmt(d.cf)}</span></td>
+      <td><span class="heat-cell" style="background:rgba(207,34,46,${di});color:${di>0.2?'#fff':'#1f2328'}">${fmt(d.dt)}</span></td>
+      <td><span class="heat-cell" style="background:rgba(26,127,55,0.1);color:#1a7f37">${fmt(d.rc)}</span></td>
+      <td><span class="heat-cell" style="background:rgba(154,103,0,0.1);color:#9a6700">${fmt(d.ac)}</span></td>
+      <td><span class="heat-cell" style="background:${cfrCol}18;color:${cfrCol};border:1px solid ${cfrCol}40;min-width:50px">${d.cfr}%</span></td>
     </tr>`;
   });
 }
 
-// Animate bars after render
 function animateBars() {
-  setTimeout(() => {
-    document.querySelectorAll('.bar-fill[data-width]').forEach(el => {
-      el.style.width = el.dataset.width + '%';
-    });
-    document.querySelectorAll('.stacked-seg[data-width]').forEach(el => {
-      el.style.width = el.dataset.width + '%';
-    });
-    document.querySelectorAll('.growth-fill[data-width]').forEach(el => {
-      el.style.width = el.dataset.width + '%';
-    });
-    document.querySelectorAll('.region-mini-bar[data-width]').forEach(el => {
-      el.style.width = el.dataset.width + '%';
-    });
-  }, 300);
+  document.querySelectorAll('.bar-fill[data-w]').forEach(el=>el.style.width=el.dataset.w+'%');
+  document.querySelectorAll('.stk-seg[data-w]').forEach(el=>el.style.width=el.dataset.w+'%');
+  document.querySelectorAll('.grw-fill[data-w]').forEach(el=>el.style.width=el.dataset.w+'%');
+  document.querySelectorAll('.rgn-bar[data-w]').forEach(el=>el.style.width=el.dataset.w+'%');
 }
 
-// ============================================================
-// INIT
-// ============================================================
 window.addEventListener('load', () => {
+  animateKPIs();
   renderTop10();
   renderRecovery();
   renderTrend();
@@ -1099,8 +935,7 @@ window.addEventListener('load', () => {
   renderGrowth();
   renderStacked();
   renderHeatmap();
-  animateBars();
-  animateCounters();
+  setTimeout(animateBars, 300);
 });
 </script>
 </body>
