@@ -69,37 +69,17 @@
 
 ---
 
-## 🚀 Getting Started
-
-**1. Clone the repository**
-```bash
-git clone https://github.com/ZeagelOg/COVID19-Analytics-Dashboard.git
-cd COVID19-Analytics-Dashboard
-```
-
-**2. Install dependencies**
-```bash
-pip install pandas numpy matplotlib seaborn jupyter
-```
-
-**3. Launch the notebook**
-```bash
-jupyter notebook COVID19_Analytics_Dashboard.ipynb
-```
-
-**4. Run all cells** — Charts are auto-saved as `.png` files in the project root.
-
----
-
 ## 📁 Charts Preview
 
 > All charts generated from WHO dataset using Python (Matplotlib & Seaborn)
 
 | Chart | Description |
 |-------|-------------|
+| 🧮 `01_kpi_cards.png` | Global KPIs — 16.48M confirmed, 654K deaths, 9.47M recovered, 6.36M active |
 | 📊 `02_top10_countries.png` | USA leads with 4.2M, Brazil 2.5M, India 1.5M |
 | 💚 `04_recovery_rate.png` | Chile 95.2% vs UK 4.8% |
 | 📈 `05_global_trend.png` | 16× growth from 1M → 16.5M in 90 days |
+| 📉 `05_timeseries.png` | Daily case progression — Apr to Jun 2020 time series |
 | 🗺️ `03_regional_distribution.png` | Americas: 52.8% of global cases |
 | 🥧 `06_regional_pie.png` | WHO regional breakdown |
 | 🚀 `07_wow_growth.png` | Papua New Guinea & Gambia 200%+ WoW |
